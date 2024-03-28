@@ -16,6 +16,7 @@ import numpy as np
 from TSPClasses import *
 import heapq
 import itertools
+from Matrix import Matrix
 
 
 class TSPSolver:
@@ -91,13 +92,8 @@ class TSPSolver:
 		route = []
 		baseCity = cities[0]
 		route.append(baseCity)
-		isDeadEnd = False
 		while (len(route) != ncities) and time.time()-start_time < time_allowance:
 			self.lowestCostRoute = [None, None]	
-			# Now build the route using the random permutation
-			# if(len(route) == ncities):
-			# 	self.findLowestRoute(baseCity, cities[0])
-			# else:
 			for j in range(ncities):
 				if(cities[j] in route ): # if the city[i] is in the route we dont use it
 					pass
@@ -139,7 +135,32 @@ class TSPSolver:
 	'''
 
 	def branchAndBound(self, time_allowance=60.0):
-		pass
+		results = {}
+		cities = self._scenario.getCities()
+		ncities = len(cities)
+		foundTour = False
+		count = 0
+		bssf = None
+		start_time = time.time()
+		matrix = Matrix(ncities, ncities)
+		# build the matrix
+		for i in range(ncities):
+			currentCity = cities[i]
+			for j in range(ncities):	
+				matrix.addToArray(i,j, currentCity.costTo(cities[j]))
+		#update the matrix 
+		matrix.updateRows()
+		print("hello")
+		#end
+		end_time = time.time()
+		results['cost'] = bssf.cost if foundTour else math.inf
+		results['time'] = end_time - start_time
+		results['count'] = count
+		results['soln'] = bssf
+		results['max'] = None
+		results['total'] = None
+		results['pruned'] = None
+		return results 
 
 
 
