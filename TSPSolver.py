@@ -16,7 +16,7 @@ import numpy as np
 from TSPClasses import *
 import heapq
 import itertools
-from Matrix import Matrix
+from State import State
 
 
 class TSPSolver:
@@ -142,14 +142,17 @@ class TSPSolver:
 		count = 0
 		bssf = None
 		start_time = time.time()
-		matrix = Matrix(ncities, ncities)
+		tempList =  [[0 for _ in range(ncities)] for _ in range(ncities)]
 		# build the matrix
 		for i in range(ncities):
 			currentCity = cities[i]
 			for j in range(ncities):	
-				matrix.addToArray(i,j, currentCity.costTo(cities[j]))
+				tempList[i][j] = currentCity.costTo(cities[j])
+		#initialize the matrix
+		stateMatrix = State(ncities, ncities, tempList)
 		#update the matrix 
-		matrix.updateRows()
+		stateMatrix.updateRows()
+		stateMatrix.updateColumns()
 		print("hello")
 		#end
 		end_time = time.time()
