@@ -17,7 +17,7 @@ from TSPClasses import *
 import heapq
 import itertools
 from State import State
-
+from PriorityQueue import PriorityQueue
 
 class TSPSolver:
 	def __init__( self, gui_view ):
@@ -143,6 +143,8 @@ class TSPSolver:
 		bssf = None
 		start_time = time.time()
 		tempList =  [[0 for _ in range(ncities)] for _ in range(ncities)]
+		priorityQueue = PriorityQueue()
+
 		# build the matrix
 		for i in range(ncities):
 			currentCity = cities[i]
@@ -153,6 +155,21 @@ class TSPSolver:
 		#update the matrix 
 		stateMatrix.updateRows()
 		stateMatrix.updateColumns()
+		#create all the possible states
+		cost = stateMatrix.getTotalCost()
+		zeroList = stateMatrix.getZeroList()
+		#Create all states 
+		for i in range(len(zeroList)):
+			rowIndex = zeroList[i][0]
+			columnIndex =  zeroList[i][1]
+			cost += stateMatrix.getTotalCost(rowIndex, columnIndex)
+			stateMatrix.makeNewState(rowIndex, columnIndex)
+			#add to the priority queue with the cost
+			priorityQueue.push(stateMatrix.makeNewState(zeroList[i][0], zeroList[i][1]), cost)
+		
+
+
+
 		print("hello")
 		#end
 		end_time = time.time()
