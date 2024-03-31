@@ -2,13 +2,12 @@ import copy
 
 
 class State:
-    def __init__(self, rows, columns, list, citiesVisited):
+    def __init__(self, rows, columns, list, citiesVisited, columnsNegated):
         self._stateMatrix = list
         self._rows = rows
         self._columns = columns
-        self._rowDeleted = []
-        self._columnDeleted = []
         self._citiesVisited = citiesVisited
+        self._columnDeleted = columnsNegated
         self._cost = 0
         self._zeroList = []
 
@@ -16,7 +15,7 @@ class State:
     #will check if a row needs update     
     def updateRows(self):
         for i in range(self._rows): 
-            if(i in self._rowDeleted):
+            if(i in self._citiesVisited):
                 pass
             else:
                 lowerBound = None
@@ -86,8 +85,9 @@ class State:
             newStateMatrix[rowIndex][j] = float('inf')
         for i in range(self._rows):
             newStateMatrix[i][columnIndex] = float('inf')
-        #add the rowIndex the city we visited to the list 
-            self._citiesVisited.append(rowIndex)
+        # #add the rowIndex the city we visited to the list and the column that we made infinite
+        # self._citiesVisited.append(rowIndex)
+        # self._columnDeleted.append(columnIndex)
         return newStateMatrix
     
 
@@ -102,7 +102,9 @@ class State:
         return self._stateMatrix[rowIndex][columnIndex]
     
     def getCitiesVisited(self):
-        return self._citiesVisited
+        return  copy.deepcopy(self._citiesVisited) # return a copy so its not connected
+    def getColumnsDeteleted(self):
+        return  copy.deepcopy(self._columnDeleted)# return a copy so its not connected
                     
 
     

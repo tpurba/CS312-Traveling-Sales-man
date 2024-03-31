@@ -141,10 +141,11 @@ class TSPSolver:
 		foundTour = False
 		count = 0
 		bssf = None
-		citiesVisited = None
 		start_time = time.time()
 		tempList =  [[0 for _ in range(ncities)] for _ in range(ncities)]
 		priorityQueue = PriorityQueue()
+		citiesVisited = []
+		columnsNegated = []
 
 		# build the matrix
 		for i in range(ncities):
@@ -152,25 +153,37 @@ class TSPSolver:
 			for j in range(ncities):	
 				tempList[i][j] = currentCity.costTo(cities[j])
 		#initialize the matrix
-		stateMatrix = State(ncities, ncities, tempList, citiesVisited)
+		stateMatrix = State(ncities, ncities, tempList, citiesVisited, columnsNegated)
 		#update the matrix 
 		stateMatrix.updateRows()
 		stateMatrix.updateColumns()
+		
 		#create all the possible states
-		cost = stateMatrix.getTotalCost()
 		zeroList = stateMatrix.getZeroList()
 		#Create all states 
 		for i in range(len(zeroList)):
+			#set the base cost
+			cost = stateMatrix.getTotalCost()
 			rowIndex = zeroList[i][0]
 			columnIndex =  zeroList[i][1]
-			cost += stateMatrix.getCost(rowIndex, columnIndex)
-			#create state 
+			# #TODO: add chosen cost but wouldn't it be always zero so no point in doing this? 
+			# cost += stateMatrix.getCost(rowIndex, columnIndex)
+			#update visited cities 
+			# TODO: PROBLEM HERE dont use stateMatrix as it will be the base for everything try to leave everything out of stateMatrix
+			citiesVisited = stateMatrix.getCitiesVisited()
+			citiesVisited.append(rowIndex)
+			columnsNegated = stateMatrix.getColumnsDeteleted()
+			columnsNegated.append(columnIndex)
+			#Make state 
 			newState = stateMatrix.makeNewState(rowIndex, columnIndex)
-			citiesVisited = newState.getCitiesVisited() # TODO may be wrong so check
-			newStateMatrix = State(ncities, ncities, newState, citiesVisited)
+			newStateMatrix = State(ncities, ncities, newState, citiesVisited, columnsNegated)
+			newStateMatrix.updateRows()
+			newStateMatrix.updateColumns()
+			#update cost after updating the rows
+			cost += newStateMatrix.getTotalCost()
 			#add to the priority queue with the cost
 			priorityQueue.push(newStateMatrix, cost)
-		
+
 
 
 
