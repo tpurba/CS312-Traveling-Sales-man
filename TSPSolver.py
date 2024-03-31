@@ -141,6 +141,7 @@ class TSPSolver:
 		foundTour = False
 		count = 0
 		bssf = None
+		citiesVisited = None
 		start_time = time.time()
 		tempList =  [[0 for _ in range(ncities)] for _ in range(ncities)]
 		priorityQueue = PriorityQueue()
@@ -151,7 +152,7 @@ class TSPSolver:
 			for j in range(ncities):	
 				tempList[i][j] = currentCity.costTo(cities[j])
 		#initialize the matrix
-		stateMatrix = State(ncities, ncities, tempList)
+		stateMatrix = State(ncities, ncities, tempList, citiesVisited)
 		#update the matrix 
 		stateMatrix.updateRows()
 		stateMatrix.updateColumns()
@@ -162,10 +163,13 @@ class TSPSolver:
 		for i in range(len(zeroList)):
 			rowIndex = zeroList[i][0]
 			columnIndex =  zeroList[i][1]
-			cost += stateMatrix.getTotalCost(rowIndex, columnIndex)
-			stateMatrix.makeNewState(rowIndex, columnIndex)
+			cost += stateMatrix.getCost(rowIndex, columnIndex)
+			#create state 
+			newState = stateMatrix.makeNewState(rowIndex, columnIndex)
+			citiesVisited = newState.getCitiesVisited() # TODO may be wrong so check
+			newStateMatrix = State(ncities, ncities, newState, citiesVisited)
 			#add to the priority queue with the cost
-			priorityQueue.push(stateMatrix.makeNewState(zeroList[i][0], zeroList[i][1]), cost)
+			priorityQueue.push(newStateMatrix, cost)
 		
 
 

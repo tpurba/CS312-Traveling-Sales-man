@@ -1,10 +1,14 @@
+import copy
+
+
 class State:
-    def __init__(self, rows, columns, list):
+    def __init__(self, rows, columns, list, citiesVisited):
         self._stateMatrix = list
         self._rows = rows
         self._columns = columns
         self._rowDeleted = []
         self._columnDeleted = []
+        self._citiesVisited = citiesVisited
         self._cost = 0
         self._zeroList = []
 
@@ -77,11 +81,13 @@ class State:
             self._stateMatrix[i][columnIndex] = self._stateMatrix[i][columnIndex] - lowerBound
     #Creates a new state based on the location selected 
     def makeNewState(self, rowIndex, columnIndex):
-        newStateMatrix = self._stateMatrix
+        newStateMatrix = copy.deepcopy(self._stateMatrix) # copy the matrix
         for j in range(self._columns):
             newStateMatrix[rowIndex][j] = float('inf')
         for i in range(self._rows):
             newStateMatrix[i][columnIndex] = float('inf')
+        #add the rowIndex the city we visited to the list 
+            self._citiesVisited.append(rowIndex)
         return newStateMatrix
     
 
@@ -93,7 +99,10 @@ class State:
         return self._cost
     
     def getCost(self, rowIndex, columnIndex):
-        
+        return self._stateMatrix[rowIndex][columnIndex]
+    
+    def getCitiesVisited(self):
+        return self._citiesVisited
                     
 
     
