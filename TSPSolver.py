@@ -16,6 +16,7 @@ import numpy as np
 from TSPClasses import *
 import heapq
 import itertools
+import random
 from State import State
 from PriorityQueue import PriorityQueue
 
@@ -85,30 +86,32 @@ class TSPSolver:
 		results = {}
 		cities = self._scenario.getCities()
 		ncities = len(cities)
-		foundTour = False
 		count = 0
 		bssf = None
+		routeFound = False
 		start_time = time.time()
-		route = []
-		baseCity = cities[0]
-		route.append(baseCity)
-		while (len(route) != ncities) and time.time()-start_time < time_allowance:
-			self.lowestCostRoute = [None, None]	
-			for j in range(ncities):
-				if(cities[j] in route ): # if the city[i] is in the route we dont use it
-					pass
-				else:
-					self.findLowestRoute(baseCity, cities[j])
-			if(self.lowestCostRoute != None):
-				route.append(self.lowestCostRoute[1])
-				baseCity = self.lowestCostRoute[1]
-			count += 1 # currently counting for the number of times we have added a route
-		bssf = TSPSolution(route)#give only array and you get the bssf generated 
-		if bssf.cost < np.inf:
-				# Found a valid route
-				foundTour = True
+		while time.time()-start_time < time_allowance and routeFound == False:
+			route = []
+			baseCity = cities[random.randint(0, (ncities - 1))] #get a random number in range of 0 to last element in cities
+			route.append(baseCity)
+			while (len(route) != ncities) :
+				self.lowestCostRoute = [None, None]	
+				for j in range(ncities):
+					if(cities[j] in route): # if the city[i] is in the route we dont use it
+						pass
+					else:
+						self.findLowestRoute(baseCity, cities[j])
+				if(self.lowestCostRoute != None):
+					route.append(self.lowestCostRoute[1])
+					baseCity = self.lowestCostRoute[1]
+				count += 1 # currently counting for the number of times we have added a route
+			tempcost = TSPSolution(route)
+			if(tempcost.cost != np.inf):
+				if(bssf == None):
+					bssf = tempcost
+					routeFound = True
 		end_time = time.time()
-		results['cost'] = bssf.cost if foundTour else math.inf
+		results['cost'] = bssf.cost
 		results['time'] = end_time - start_time
 		results['count'] = count
 		results['soln'] = bssf
