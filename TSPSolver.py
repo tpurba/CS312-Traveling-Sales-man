@@ -128,6 +128,8 @@ class TSPSolver:
 		elif(self.lowestCostRoute[0] > tempCost):
 			self.lowestCostRoute[0] = tempCost
 			self.lowestCostRoute[1] = visitingCity #index here 
+
+
 	''' <summary>
 		This is the entry point for the branch-and-bound algorithm that you will implement
 		</summary>
@@ -141,51 +143,76 @@ class TSPSolver:
 		results = {}
 		cities = self._scenario.getCities()
 		ncities = len(cities)
-		foundTour = False
+		pruned = 0
 		count = 0
+
 		bssf = None
 		start_time = time.time()
 		tempList =  [[0 for _ in range(ncities)] for _ in range(ncities)]
 		priorityQueue = PriorityQueue()
 		citiesVisited = []
 		columnsNegated = []
-
-		# build the matrix
+		isPQEmpty = False
+		depth = 0 
+		# build initalMatrix
 		for i in range(ncities):
 			currentCity = cities[i]
 			for j in range(ncities):	
 				tempList[i][j] = currentCity.costTo(cities[j])
 		#initialize the matrix
-		stateMatrix = State(ncities, ncities, tempList, citiesVisited, columnsNegated)
+		baseMatrix = State(ncities, ncities, tempList, citiesVisited, columnsNegated)
 		#update the matrix 
-		stateMatrix.updateRows()
-		stateMatrix.updateColumns()
+		baseMatrix.updateRows()
+		baseMatrix.updateColumns()
+		bssf = self.greedy()['cost'] # get inital bssf 
+		#inital check 
+		if(bssf < baseMatrix.getTotalCost()): # your done 
+			end_time = time.time()
+			results['cost'] = 0 # since the inital bssf was the best 
+			results['time'] = end_time - start_time
+			results['count'] = count
+			results['soln'] = bssf
+			results['max'] = None
+			results['total'] = None
+			results['pruned'] = None
+			return results 
+
 		
-		#create all the possible states
-		zeroList = stateMatrix.getZeroList()
-		#Create all states 
-		for i in range(len(zeroList)):
-			#set the base cost
-			cost = stateMatrix.getTotalCost()
-			rowIndex = zeroList[i][0]
-			columnIndex =  zeroList[i][1]
-			# #TODO: add chosen cost but wouldn't it be always zero so no point in doing this? 
-			# cost += stateMatrix.getCost(rowIndex, columnIndex)
-			#update visited cities 
-			# TODO: PROBLEM HERE dont use stateMatrix as it will be the base for everything try to leave everything out of stateMatrix
-			citiesVisited = stateMatrix.getCitiesVisited()
-			citiesVisited.append(rowIndex)
-			columnsNegated = stateMatrix.getColumnsDeteleted()
-			columnsNegated.append(columnIndex)
-			#Make state 
-			newState = stateMatrix.makeNewState(rowIndex, columnIndex)
-			newStateMatrix = State(ncities, ncities, newState, citiesVisited, columnsNegated)
-			newStateMatrix.updateRows()
-			newStateMatrix.updateColumns()
-			#update cost after updating the rows
-			cost += newStateMatrix.getTotalCost()
-			#add to the priority queue with the cost
-			priorityQueue.push(newStateMatrix, cost)
+		while time.time()-start_time < time_allowance and isPQEmpty == False:
+			depth = depth + 1
+			#create all the possible states
+			zeroList = baseMatrix.getZeroList()
+			#Create all states 
+			for i in range(len(zeroList)):
+				#set the base cost
+				cost = baseMatrix.getTotalCost()
+				rowIndex = zeroList[i][0]
+				columnIndex =  zeroList[i][1]
+				# #TODO: add chosen cost but wouldn't it be always zero so no point in doing this? 
+				# cost += stateMatrix.getCost(rowIndex, columnIndex)
+				#update visited cities 
+				# TODO: PROBLEM HERE dont use stateMatrix as it will be the base for everything try to leave everything out of stateMatrix
+				citiesVisited = baseMatrix.getCitiesVisited()
+				citiesVisited.append(rowIndex)
+				columnsNegated = baseMatrix.getColumnsDeteleted()
+				columnsNegated.append(columnIndex)
+				#Make state 
+				newState = baseMatrix.makeNewState(rowIndex, columnIndex)
+				newStateMatrix = State(ncities, ncities, newState, citiesVisited, columnsNegated)
+				newStateMatrix.updateRows()
+				newStateMatrix.updateColumns()
+				#update cost after updating the rows
+				cost += newStateMatrix.getTotalCost()
+				#only add when cost is less than bssf 
+				if(bssf >= cost): 
+					priorityQueue.push(newStateMatrix, cost - depth)
+				else: # prune/ dont add
+					pruned = pruned + 1
+			#out of for loop
+			if(len(priorityQueue) == 0): # check for empty 
+				isPQEmpty = True
+			else:
+				baseMatrix = priorityQueue.pop()
 
 
 
@@ -193,10 +220,10 @@ class TSPSolver:
 		print("hello")
 		#end
 		end_time = time.time()
-		results['cost'] = bssf.cost if foundTour else math.inf
+		results['cost'] = bssf
 		results['time'] = end_time - start_time
 		results['count'] = count
-		results['soln'] = bssf
+		results['soln'] = None
 		results['max'] = None
 		results['total'] = None
 		results['pruned'] = None

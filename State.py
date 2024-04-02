@@ -24,10 +24,10 @@ class State:
                 for j in range(self._columns):
                     currentCost = self._stateMatrix[i][j]
                     if(currentCost == 0):
-                        self._zeroList.append((i,j))
+                        self._zeroList.append((i,j)) # flawed only finds the initial zero 
                         zeroExist = True
-                        break
-                    else:
+                        # break
+                    elif(zeroExist == False):
                         if(lowerBound == None):
                             lowestCord = (i,j)
                             lowerBound = currentCost
