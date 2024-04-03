@@ -2,16 +2,15 @@ import copy
 
 
 class State:
-    def __init__(self, rows, columns, list, citiesVisited, columnsNegated, cost, depth):
+    def __init__(self, rows, columns, list, citiesVisited, columnsNegated, cost, depth, currentCity):
         self._stateMatrix = list
         self._rows = rows
         self._columns = columns
         self._citiesVisited = citiesVisited
         self._columnDeleted = columnsNegated
         self._cost = cost
-        self._zeroList = []
         self._depth = depth
-
+        self._currentCity = currentCity
 
     #will check if a row needs update     
     def updateRows(self):
@@ -25,10 +24,9 @@ class State:
                 for j in range(self._columns):
                     currentCost = self._stateMatrix[i][j]
                     if(currentCost == 0):
-                        self._zeroList.append((i,j)) # flawed only finds the initial zero 
                         zeroExist = True
-                        # break
-                    elif(zeroExist == False):
+                        break
+                    else:
                         if(lowerBound == None):
                             lowestCord = (i,j)
                             lowerBound = currentCost
@@ -40,7 +38,6 @@ class State:
                 if(zeroExist == False):
                     self._cost += lowerBound
                     if(lowerBound != float('inf')):
-                        self._zeroList.append(lowestCord)
                         self.updateRow(i, lowerBound)
 
     #will update specific row
@@ -59,7 +56,6 @@ class State:
                 for i in range(self._rows):
                     currentCost = self._stateMatrix[i][j]
                     if(currentCost == 0):
-                        # self._zeroList.append((i,j))
                         zeroExist = True
                         break
                     else:
@@ -74,7 +70,6 @@ class State:
                 if(zeroExist == False):
                     self._cost += lowerBound
                     if(lowerBound != float('inf')):
-                        self._zeroList.append(lowestCord)
                         self.updateColumn(j, lowerBound)
 
     #will update specific row
@@ -95,9 +90,8 @@ class State:
     
 
     #getters 
-    def getZeroList(self):
-        return self._zeroList
-
+    def getCurrentCity(self):
+        return self._currentCity
     def getTotalCost(self):
         return self._cost
     

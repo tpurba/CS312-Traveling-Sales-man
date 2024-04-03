@@ -159,19 +159,20 @@ class TSPSolver:
 		depth = 0 
 		cost = 0
 
-
 		# build initalMatrix
 		for i in range(ncities):
 			currentCity = cities[i]
 			for j in range(ncities):	
 				tempList[i][j] = currentCity.costTo(cities[j])
 		#initialize the matrix
-		baseMatrix = State(ncities, ncities, tempList, citiesVisited, columnsNegated, cost, 0)
+		currentCity = 0 # start at zero city 
+		baseMatrix = State(ncities, ncities, tempList, citiesVisited, columnsNegated, cost, depth, currentCity)
 		#update the matrix 
 		baseMatrix.updateRows()
 		baseMatrix.updateColumns()
 		initialbssf = self.greedy()['cost'] # get inital bssf 
 		bssf = initialbssf
+
 		#inital check 
 		if(bssf < baseMatrix.getTotalCost()): # your done 
 			end_time = time.time()
@@ -183,43 +184,49 @@ class TSPSolver:
 			results['total'] = None
 			results['pruned'] = None
 			return results 
+		
 		while time.time()-start_time < time_allowance and isPQEmpty == False:
-			#create all the possible states
-			zeroList = baseMatrix.getZeroList()
-			#Create all states 
-			for i in range(len(zeroList)):
-				#set the base cost
-				cost = baseMatrix.getTotalCost()#TODO: keep cost actually the cost 
-				rowIndex = zeroList[i][0]
-				columnIndex =  zeroList[i][1]
-				# #TODO: add chosen cost but wouldn't it be always zero so no point in doing this? 
-				# cost += stateMatrix.getCost(rowIndex, columnIndex)
-				#update visited cities 
-				# TODO: PROBLEM HERE dont use stateMatrix as it will be the base for everything try to leave everything out of stateMatrix
+			#Create all states from current City
+			depth = baseMatrix.getDepth() + 1
+			for i in range(ncities): # iterate columns 
+				rowIndex = baseMatrix.getCurrentCity()
+				columnIndex = i
 				citiesVisited = baseMatrix.getCitiesVisited()
-				citiesVisited.append(rowIndex)
-				columnsNegated = baseMatrix.getColumnsDeteleted()
-				columnsNegated.append(columnIndex)
-				#Make state 
-				newState = baseMatrix.makeNewState(rowIndex, columnIndex)
-				depth = baseMatrix.getDepth() + 1
-				newStateMatrix = State(ncities, ncities, newState, citiesVisited, columnsNegated, cost, depth)
-				newStateMatrix.updateRows()
-				newStateMatrix.updateColumns()
-				#update cost after updating the rows
-				cost = newStateMatrix.getTotalCost()
-				#only add when cost is less than bssf
-				if(cost <= bssf):
-					if(len(citiesVisited) == ncities): 
-						if(self.cityCheck(cities, citiesVisited)):
+				if(rowIndex == columnIndex or i in citiesVisited): # Dont pass own city and dont pass visited city 
+					pass
+				else: 
+					# add the cost of path chosen and the current cost we have 
+					cost = baseMatrix.getTotalCost() + baseMatrix.getCost(rowIndex, columnIndex)
+					
+					#update visited cities 
+					citiesVisited.append(rowIndex)
+					columnsNegated = baseMatrix.getColumnsDeteleted() # n space 
+					columnsNegated.append(columnIndex)
+
+					#Make state 
+					newState = baseMatrix.makeNewState(rowIndex, columnIndex)
+					currentCity = columnIndex # traveling to column index city
+					newStateMatrix = State(ncities, ncities, newState, citiesVisited, columnsNegated, cost, depth, currentCity)
+					newStateMatrix.updateRows()
+					newStateMatrix.updateColumns()
+					
+					#update cost after updating the rows any numbers that became zeroes during matrix reduction
+					cost = newStateMatrix.getTotalCost()
+
+					#last path  
+					if(len(citiesVisited) == ncities - 1): 
+						cost +=  baseMatrix.getCost(newStateMatrix.getCurrentCity(), 0) #maybe dont need since the last path will be zero due to the previous update 
+						citiesVisited.append(newStateMatrix.getCurrentCity()) # append to last city
+					#only add when cost is less than bssf
+					if(cost <= bssf):
+						if(len(citiesVisited) == ncities):
+							# if(self.cityCheck(cities, citiesVisited)):# theoretically not needed
 							bssf = cost
 							route = self.makeRoute(cities, citiesVisited)
-						else: 
+						else:
 							priorityQueue.push(newStateMatrix, cost - newStateMatrix.getDepth())
-					else:
-						priorityQueue.push(newStateMatrix, cost - newStateMatrix.getDepth())
-				else: # prune/ dont add
-					pruned = pruned + 1
+					else: # prune/ dont add
+						pruned = pruned + 1
 			#out of for loop
 			getBaseMatrix = True
 			while(getBaseMatrix == True and isPQEmpty == False): # basically allows for the bssf to be compared to priority queue
@@ -232,7 +239,7 @@ class TSPSolver:
 						getBaseMatrix = True
 					else:
 						getBaseMatrix = False
-
+		#TODO: need to figure this out still
 		if len(route) == 0: 
 			bssf = np.inf
 		else:
