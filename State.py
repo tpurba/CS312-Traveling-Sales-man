@@ -19,7 +19,6 @@ class State:
                 pass
             else:
                 lowerBound = None
-                lowestCord = None
                 zeroExist = False
                 for j in range(self._columns):
                     currentCost = self._stateMatrix[i][j]
@@ -28,10 +27,8 @@ class State:
                         break
                     else:
                         if(lowerBound == None):
-                            lowestCord = (i,j)
                             lowerBound = currentCost
                         elif(lowerBound > currentCost):
-                            lowestCord = (i,j)
                             lowerBound = currentCost
                 #if we dont break out and for loop concludes 
                 #gaurenteed no zero found 
@@ -60,10 +57,8 @@ class State:
                         break
                     else:
                         if(lowerBound == None):
-                            lowestCord = (i,j)
                             lowerBound = currentCost
                         elif(lowerBound > currentCost):
-                            lowestCord = (i,j)
                             lowerBound = currentCost
                 #if we dont break out and for loop concludes 
                 #gaurenteed no zero found 

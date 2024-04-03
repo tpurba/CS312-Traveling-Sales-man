@@ -14,3 +14,5 @@ class PriorityQueue:
 
     def __len__(self):
         return len(self._queue)
+    def getIndex(self):
+        return self._index

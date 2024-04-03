@@ -158,6 +158,7 @@ class TSPSolver:
 		isPQEmpty = False
 		depth = 0 
 		cost = 0
+		totalStateMade = 0
 
 		# build initalMatrix
 		for i in range(ncities):
@@ -192,8 +193,10 @@ class TSPSolver:
 				rowIndex = baseMatrix.getCurrentCity()
 				columnIndex = i
 				citiesVisited = baseMatrix.getCitiesVisited()
+
 				if(rowIndex == columnIndex or i in citiesVisited): # Dont pass own city and dont pass visited city 
 					pass
+
 				else: 
 					# add the cost of path chosen and the current cost we have 
 					cost = baseMatrix.getTotalCost() + baseMatrix.getCost(rowIndex, columnIndex)
@@ -207,6 +210,7 @@ class TSPSolver:
 					newState = baseMatrix.makeNewState(rowIndex, columnIndex)
 					currentCity = columnIndex # traveling to column index city
 					newStateMatrix = State(ncities, ncities, newState, citiesVisited, columnsNegated, cost, depth, currentCity)
+					totalStateMade += 1 # increment total state made when a new state is made 
 					newStateMatrix.updateRows()
 					newStateMatrix.updateColumns()
 					
@@ -217,6 +221,7 @@ class TSPSolver:
 					if(len(citiesVisited) == ncities - 1): 
 						cost +=  baseMatrix.getCost(newStateMatrix.getCurrentCity(), 0) #maybe dont need since the last path will be zero due to the previous update 
 						citiesVisited.append(newStateMatrix.getCurrentCity()) # append to last city
+
 					#only add when cost is less than bssf
 					if(cost <= bssf):
 						if(len(citiesVisited) == ncities):
@@ -227,6 +232,7 @@ class TSPSolver:
 							priorityQueue.push(newStateMatrix, cost - newStateMatrix.getDepth())
 					else: # prune/ dont add
 						pruned = pruned + 1
+
 			#out of for loop
 			getBaseMatrix = True
 			while(getBaseMatrix == True and isPQEmpty == False): # basically allows for the bssf to be compared to priority queue
@@ -239,7 +245,7 @@ class TSPSolver:
 						getBaseMatrix = True
 					else:
 						getBaseMatrix = False
-		#TODO: need to figure this out still
+
 		if len(route) == 0: 
 			bssf = np.inf
 		else:
@@ -250,9 +256,9 @@ class TSPSolver:
 		results['cost'] = bssf.cost
 		results['time'] = end_time - start_time
 		results['count'] = count
-		results['soln'] = bssf
-		results['max'] = None
-		results['total'] = None
+		results['soln'] = bssf if bssf != np.inf else None
+		results['max'] = priorityQueue.getIndex()
+		results['total'] = totalStateMade
 		results['pruned'] = pruned
 		return results 
 	
