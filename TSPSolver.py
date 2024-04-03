@@ -88,28 +88,31 @@ class TSPSolver:
 		ncities = len(cities)
 		count = 0
 		bssf = None
-		routeFound = False
 		start_time = time.time()
-		while time.time()-start_time < time_allowance and routeFound == False:
+		for i in range(ncities):
+			isFinished = False
 			route = []
-			baseCity = cities[random.randint(0, (ncities - 1))] #get a random number in range of 0 to last element in cities
-			route.append(baseCity)
-			while (len(route) != ncities) :
-				self.lowestCostRoute = [None, None]	
-				for j in range(ncities):
-					if(cities[j] in route): # if the city[i] is in the route we dont use it
-						pass
-					else:
-						self.findLowestRoute(baseCity, cities[j])
-				if(self.lowestCostRoute != None):
-					route.append(self.lowestCostRoute[1])
-					baseCity = self.lowestCostRoute[1]
-				count += 1 # currently counting for the number of times we have added a route
-			tempcost = TSPSolution(route)
-			if(tempcost.cost != np.inf):
-				if(bssf == None):
-					bssf = tempcost
-					routeFound = True
+			while time.time()-start_time < time_allowance and isFinished == False:
+				baseCity = cities[i] #get a random number in range of 0 to last element in cities
+				route.append(baseCity)
+				while (len(route) != ncities):
+					self.lowestCostRoute = [None, None]	
+					for j in range(ncities):
+						if(cities[j] in route): # if the city[i] is in the route we dont use it
+							pass
+						else:
+							self.findLowestRoute(baseCity, cities[j])
+					if(self.lowestCostRoute != None):
+						route.append(self.lowestCostRoute[1])
+						baseCity = self.lowestCostRoute[1]
+					count += 1 # currently counting for the number of times we have added a route
+				tempcost = TSPSolution(route)
+				if(tempcost.cost != np.inf):
+					if(bssf == None):
+						bssf = tempcost
+					if(bssf.cost > tempcost.cost):
+						bssf = tempcost
+				isFinished = True
 		end_time = time.time()
 		results['cost'] = bssf.cost
 		results['time'] = end_time - start_time
@@ -139,13 +142,13 @@ class TSPSolver:
 		max queue size, total number of states created, and number of pruned states.</returns>
 	'''
 
-	def branchAndBound(self, time_allowance=60.0):
+	def branchAndBound(self, time_allowance=300.0):
 		results = {}
 		cities = self._scenario.getCities()
 		ncities = len(cities)
 		pruned = 0
 		count = 0
-
+		route = []
 		bssf = None
 		start_time = time.time()
 		tempList =  [[0 for _ in range(ncities)] for _ in range(ncities)]
@@ -154,17 +157,21 @@ class TSPSolver:
 		columnsNegated = []
 		isPQEmpty = False
 		depth = 0 
+		cost = 0
+
+
 		# build initalMatrix
 		for i in range(ncities):
 			currentCity = cities[i]
 			for j in range(ncities):	
 				tempList[i][j] = currentCity.costTo(cities[j])
 		#initialize the matrix
-		baseMatrix = State(ncities, ncities, tempList, citiesVisited, columnsNegated)
+		baseMatrix = State(ncities, ncities, tempList, citiesVisited, columnsNegated, cost, 0)
 		#update the matrix 
 		baseMatrix.updateRows()
 		baseMatrix.updateColumns()
-		bssf = self.greedy()['cost'] # get inital bssf 
+		initialbssf = self.greedy()['cost'] # get inital bssf 
+		bssf = initialbssf
 		#inital check 
 		if(bssf < baseMatrix.getTotalCost()): # your done 
 			end_time = time.time()
@@ -176,16 +183,14 @@ class TSPSolver:
 			results['total'] = None
 			results['pruned'] = None
 			return results 
-
-		
-		while time.time()-start_time < time_allowance and isPQEmpty == False:
-			depth = depth + 1
+		#time.time()-start_time < time_allowance and
+		while isPQEmpty == False:
 			#create all the possible states
 			zeroList = baseMatrix.getZeroList()
 			#Create all states 
 			for i in range(len(zeroList)):
 				#set the base cost
-				cost = baseMatrix.getTotalCost()
+				cost = baseMatrix.getTotalCost()#TODO: keep cost actually the cost 
 				rowIndex = zeroList[i][0]
 				columnIndex =  zeroList[i][1]
 				# #TODO: add chosen cost but wouldn't it be always zero so no point in doing this? 
@@ -198,39 +203,63 @@ class TSPSolver:
 				columnsNegated.append(columnIndex)
 				#Make state 
 				newState = baseMatrix.makeNewState(rowIndex, columnIndex)
-				newStateMatrix = State(ncities, ncities, newState, citiesVisited, columnsNegated)
+				depth = baseMatrix.getDepth() + 1
+				newStateMatrix = State(ncities, ncities, newState, citiesVisited, columnsNegated, cost, depth)
 				newStateMatrix.updateRows()
 				newStateMatrix.updateColumns()
 				#update cost after updating the rows
-				cost += newStateMatrix.getTotalCost()
-				#only add when cost is less than bssf 
-				if(bssf >= cost): 
-					priorityQueue.push(newStateMatrix, cost - depth)
+				cost = newStateMatrix.getTotalCost()
+				#only add when cost is less than bssf
+				if(cost <= bssf):
+					if(len(citiesVisited) == ncities): 
+						if(self.cityCheck(cities, citiesVisited)):
+							bssf = cost
+							route = self.makeRoute(cities, citiesVisited)
+						else: 
+							priorityQueue.push(newStateMatrix, cost - newStateMatrix.getDepth())
+					else:
+						priorityQueue.push(newStateMatrix, cost - newStateMatrix.getDepth())
 				else: # prune/ dont add
 					pruned = pruned + 1
 			#out of for loop
-			if(len(priorityQueue) == 0): # check for empty 
-				isPQEmpty = True
-			else:
-				baseMatrix = priorityQueue.pop()
+			getBaseMatrix = True
+			while(getBaseMatrix == True and isPQEmpty == False): # basically allows for the bssf to be compared to priority queue
+				if(len(priorityQueue) == 0): # check for empty 
+					isPQEmpty = True
+				else:
+					baseMatrix = priorityQueue.pop()
+					if(baseMatrix.getTotalCost() > bssf):
+						pruned = pruned + 1
+						getBaseMatrix = True
+					else:
+						getBaseMatrix = False
 
+		if len(route) == 0: 
+			bssf = np.inf
+		else:
+			bssf = TSPSolution(route)
 
-
-
-		print("hello")
 		#end
 		end_time = time.time()
-		results['cost'] = bssf
+		results['cost'] = bssf.cost
 		results['time'] = end_time - start_time
 		results['count'] = count
-		results['soln'] = None
+		results['soln'] = bssf
 		results['max'] = None
 		results['total'] = None
-		results['pruned'] = None
+		results['pruned'] = pruned
 		return results 
-
-
-
+	
+	def cityCheck(self, cities, citiesVisited):
+		for i in range(len(cities)):
+			if(i not in citiesVisited):
+				return False
+		return True
+	def makeRoute(self, cities, citiesVisited):
+		tempRoute = []
+		for i in range(len(citiesVisited)):
+			tempRoute.append(cities[citiesVisited[i]])
+		return tempRoute
 	''' <summary>
 		This is the entry point for the algorithm you'll write for your group project.
 		</summary>

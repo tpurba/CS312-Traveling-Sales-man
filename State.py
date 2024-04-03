@@ -2,14 +2,15 @@ import copy
 
 
 class State:
-    def __init__(self, rows, columns, list, citiesVisited, columnsNegated):
+    def __init__(self, rows, columns, list, citiesVisited, columnsNegated, cost, depth):
         self._stateMatrix = list
         self._rows = rows
         self._columns = columns
         self._citiesVisited = citiesVisited
         self._columnDeleted = columnsNegated
-        self._cost = 0
+        self._cost = cost
         self._zeroList = []
+        self._depth = depth
 
 
     #will check if a row needs update     
@@ -38,8 +39,9 @@ class State:
                 #gaurenteed no zero found 
                 if(zeroExist == False):
                     self._cost += lowerBound
-                    self._zeroList.append(lowestCord)
-                    self.updateRow(i, lowerBound)
+                    if(lowerBound != float('inf')):
+                        self._zeroList.append(lowestCord)
+                        self.updateRow(i, lowerBound)
 
     #will update specific row
     def updateRow(self, rowIndex, lowerBound):
@@ -71,8 +73,9 @@ class State:
                 #gaurenteed no zero found 
                 if(zeroExist == False):
                     self._cost += lowerBound
-                    self._zeroList.append(lowestCord)
-                    self.updateColumn(j, lowerBound)
+                    if(lowerBound != float('inf')):
+                        self._zeroList.append(lowestCord)
+                        self.updateColumn(j, lowerBound)
 
     #will update specific row
     def updateColumn(self, columnIndex, lowerBound):
@@ -105,6 +108,7 @@ class State:
         return  copy.deepcopy(self._citiesVisited) # return a copy so its not connected
     def getColumnsDeteleted(self):
         return  copy.deepcopy(self._columnDeleted)# return a copy so its not connected
-                    
+    def getDepth(self):
+        return self._depth
 
     
