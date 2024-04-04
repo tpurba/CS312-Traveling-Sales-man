@@ -159,6 +159,7 @@ class TSPSolver:
 		depth = 0 
 		cost = 0
 		totalStateMade = 0
+		numSolutions = 0
 
 		# build initalMatrix
 		for i in range(ncities):
@@ -171,8 +172,8 @@ class TSPSolver:
 		#update the matrix 
 		baseMatrix.updateRows()
 		baseMatrix.updateColumns()
-		initialbssf = self.greedy()['cost'] # get inital bssf 
-		bssf = initialbssf
+		initialbssf = self.greedy() # get inital bssf 
+		bssf = initialbssf['cost']
 
 		#inital check 
 		if(bssf < baseMatrix.getTotalCost()): # your done 
@@ -219,6 +220,7 @@ class TSPSolver:
 
 					#last path  
 					if(len(citiesVisited) == ncities - 1): 
+						totalStateMade += 1 
 						cost +=  baseMatrix.getCost(newStateMatrix.getCurrentCity(), 0) #maybe dont need since the last path will be zero due to the previous update 
 						citiesVisited.append(newStateMatrix.getCurrentCity()) # append to last city
 
@@ -228,6 +230,7 @@ class TSPSolver:
 							# if(self.cityCheck(cities, citiesVisited)):# theoretically not needed
 							bssf = cost
 							route = self.makeRoute(cities, citiesVisited)
+							numSolutions += 1
 						else:
 							priorityQueue.push(newStateMatrix, cost - newStateMatrix.getDepth())
 					else: # prune/ dont add
@@ -253,10 +256,10 @@ class TSPSolver:
 
 		#end
 		end_time = time.time()
-		results['cost'] = bssf.cost
+		results['cost'] = bssf.cost if bssf != np.inf else initialbssf['cost']
 		results['time'] = end_time - start_time
-		results['count'] = count
-		results['soln'] = bssf if bssf != np.inf else None
+		results['count'] = numSolutions if bssf != np.inf else 0
+		results['soln'] = bssf if bssf != np.inf else initialbssf['soln']
 		results['max'] = priorityQueue.getIndex()
 		results['total'] = totalStateMade
 		results['pruned'] = pruned
