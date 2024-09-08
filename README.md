@@ -1,7 +1,7 @@
 # Report
 
 #### Greedy
-<img src="images/GreedyAlgorithm.png" alt="Greedy" height="300px" width="300px" />
+<img src="images/GreedyAlgorithm.png" alt="Greedy" style="max-width: 100%" />
 #### Branch and Bound
 <img src="images/Branch.png" alt="Branch" style="max-width: 100%"/>
 <img src="images/Branch2.png" alt="Branch" style="max-width: 100%"/>
