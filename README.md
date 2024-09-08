@@ -3,7 +3,7 @@
 #### Greedy
 <img src="images/GreedyAlgorithm.png" alt="Greedy" height="300px" width="300px" />
 #### Branch and Bound
-<img src="images/Branch.png" alt="Branch" height="300px" width="300px" />
+<img src="images/Branch.png" alt="Branch" />
 <img src="images/Branch2.png" alt="Branch" height="300px" width="300px" />
 <img src="images/Branch3.png" alt="Branch" height="300px" width="300px" />
 <img src="images/Branch4.png" alt="Branch" height="300px" width="300px" />
