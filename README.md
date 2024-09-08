@@ -3,20 +3,20 @@
 #### Greedy
 <img src="images/GreedyAlgorithm.png" alt="Greedy" height="300px" width="300px" />
 #### Branch and Bound
-<img src="images/Branch.png" alt="Branch"/>
-<img src="images/Branch2.png" alt="Branch" />
-<img src="images/Branch3.png" alt="Branch"  />
-<img src="images/Branch4.png" alt="Branch"  />
-<img src="images/Branch5.png" alt="Branch"  />
+<img src="images/Branch.png" alt="Branch" style="max-width: 100%"/>
+<img src="images/Branch2.png" alt="Branch" style="max-width: 100%"/>
+<img src="images/Branch3.png" alt="Branch"  style="max-width: 100%"/>
+<img src="images/Branch4.png" alt="Branch"  style="max-width: 100%"/>
+<img src="images/Branch5.png" alt="Branch"  style="max-width: 100%"/>
 
 #### States Class
-<img src="images/Branch6.png" alt="State" />
-<img src="images/Branch7.png" alt="State" />
-<img src="images/Branch8.png" alt="State" />
-<img src="images/Branch9.png" alt="State"  />
+<img src="images/Branch6.png" alt="State" style="max-width: 100%"/>
+<img src="images/Branch7.png" alt="State" style="max-width: 100%"/>
+<img src="images/Branch8.png" alt="State" style="max-width: 100%"/>
+<img src="images/Branch9.png" alt="State"  style="max-width: 100%"/>
 
 #### Priority Queue
-<img src="images/prio.png" alt="Prio" height="300px" width="300px" />
+<img src="images/prio.png" alt="Prio" style="max-width: 100%" />
 
 ---
 
@@ -28,41 +28,41 @@
 
 The time complexity is O(n³) due to the nested loops: one `while(len != ncities)` and two nested `for` loops. The first loop takes O(n), and inside it, the nested loops operate at O(n²), leading to a combined time complexity of O(n³).  
 The space complexity is O(n), as the `route` list stores the shortest path that goes through all cities.
-<img src="images/GreedyEx.png" alt="Greedy"  />
-<img src="images/GreedyEx2.png" alt="Greedy"  />
-<img src="images/GreedyEx3.png" alt="Greedy"  />
-<img src="images/GreedyEx4.png" alt="Greedy"  />
+<img src="images/GreedyEx.png" alt="Greedy"  style="max-width: 100%"/>
+<img src="images/GreedyEx2.png" alt="Greedy"  style="max-width: 100%"/>
+<img src="images/GreedyEx3.png" alt="Greedy"  style="max-width: 100%"/>
+<img src="images/GreedyEx4.png" alt="Greedy"  style="max-width: 100%"/>
 
 #### Priority Queue
 - **Time Complexity:** O(log n)
 - **Space Complexity:** O(1)
 
 The priority queue uses the `heapq` library. Push and pop operations are O(log n), as per its documentation, while space complexity is constant since no significant space is created.
-<img src="images/PrioEx.png" alt="Prio"  />
+<img src="images/PrioEx.png" alt="Prio"  style="max-width: 100%"/>
 
 #### Reduced Cost Matrix (Including Updating)
 - **Time Complexity:** O(n²)
 - **Space Complexity:** O(1)
-<img src="images/PrioEx.png" alt="Prio"  />
+<img src="images/PrioEx.png" alt="Prio"  style="max-width: 100%"/>
 Both row and column updates have a time complexity of O(n²) due to the two nested loops, each iterating over n elements. Space complexity is constant as no additional space is created.
-<img src="images/reducedEx.png" alt="Reduce"  />
-<img src="images/reducedEx2.png" alt="Reduce"  />
+<img src="images/reducedEx.png" alt="Reduce" style="max-width: 100%"/>
+<img src="images/reducedEx2.png" alt="Reduce"  style="max-width: 100%"/>
 
 #### BSSF Initialization
 - **Time Complexity:** O(n³)
 - **Space Complexity:** O(n)
 
 The initial BSSF (Bounded Suboptimal Solution First) is generated using the greedy algorithm, which has O(n³) time complexity and O(n) space complexity, as mentioned earlier.
-<img src="images/GreedyEx.png" alt="Greedy"  />
+<img src="images/GreedyEx.png" alt="Greedy"  style="max-width: 100%"/>
 
 #### Expanding One Search State into Its Children
 - **Time Complexity:** O(n³) (worst case)
 - **Space Complexity:** O(n²)
 
 The expansion time complexity is O(n³), driven by the nested loops and the reduced cost matrix updates. The space complexity is O(n²), as the worst case requires storing n² elements.
-<img src="images/reducedEx3.png" alt="Reduce"  />
-<img src="images/reducedEx4.png" alt="Reduce"  />
-<img src="images/reducedEx5.png" alt="Reduce"  />
+<img src="images/reducedEx3.png" alt="Reduce"  style="max-width: 100%"/>
+<img src="images/reducedEx4.png" alt="Reduce"  style="max-width: 100%"/>
+<img src="images/reducedEx5.png" alt="Reduce" style="max-width: 100%" />
 
 #### Full Branch and Bound Algorithm
 - **Time Complexity:** O(n³ * time)
@@ -70,16 +70,16 @@ The expansion time complexity is O(n³), driven by the nested loops and the redu
 
 The time complexity is O(n³) multiplied by the time required for the loop to run, as the algorithm involves expanding matrices and creating child states. Space complexity is O(n²) for storing the expanded matrices, and it also scales with time due to the loop.
 
-<img src="images/branchEx1.png" alt="Branch"/>
-<img src="images/branchEx2.png" alt="Branch"  />
-<img src="images/branchEx3.png" alt="Branch"  />
-<img src="images/branchEx4.png" alt="Branch"  />
-<img src="images/branchEx5.png" alt="Branch"/>
-<img src="images/branchEx6.png" alt="Branch" />
-<img src="images/branchEx7.png" alt="Branch"  />
-<img src="images/branchEx8.png" alt="Branch"  />
-<img src="images/branchEx9.png" alt="Branch"  />
-<img src="images/branchEx10.png" alt="Branch" />
+<img src="images/branchEx1.png" alt="Branch" style="max-width: 100%"/>
+<img src="images/branchEx2.png" alt="Branch"  style="max-width: 100%"/>
+<img src="images/branchEx3.png" alt="Branch"  style="max-width: 100%"/>
+<img src="images/branchEx4.png" alt="Branch"  style="max-width: 100%"/>
+<img src="images/branchEx5.png" alt="Branch" style="max-width: 100%"/>
+<img src="images/branchEx6.png" alt="Branch" style="max-width: 100%"/>
+<img src="images/branchEx7.png" alt="Branch"  style="max-width: 100%"/>
+<img src="images/branchEx8.png" alt="Branch"  style="max-width: 100%"/>
+<img src="images/branchEx9.png" alt="Branch"  style="max-width: 100%"/>
+<img src="images/branchEx10.png" alt="Branch" style="max-width: 100%"/>
 
 ---
 
